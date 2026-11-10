@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <header class="app-header">
+        <div class="header-top">
+          <h1>Task Flow</h1>
+          <button id="sign-out" class="btn" type="button" hidden>Déconnexion</button>
+        </div>
+        <p class="subtitle" id="profile-subtitle"></p>
+      </header>
+
+      <section id="profile-setup" hidden aria-labelledby="profile-heading">
+        <span class="setup-label">Premier lancement</span>
+        <h2 id="profile-heading">Crée ton compte</h2>
+        <p id="account-intro">Renseigne tes coordonnées et choisis ton espace Task Flow.</p>
+        <p class="account-guidance">Tous les champs sont obligatoires. Utilise une adresse e-mail différente pour chaque compte.</p>
+        <form id="profile-choices">
+          <div class="account-fields">
+            <label>Nom <input name="name" autocomplete="name" maxlength="80" pattern=".*\S.*" required></label>
+            <label>Adresse e-mail <input type="email" name="email" autocomplete="email" maxlength="254" required></label>
+            <label>Mot de passe <input type="password" name="password" autocomplete="new-password" minlength="8" maxlength="128" aria-describedby="password-rules password-strength" required></label>
+            <ul id="password-rules" class="password-rules"></ul>
+            <meter id="password-meter" min="0" max="3" value="0" aria-label="Robustesse du mot de passe"></meter>
+            <small id="password-strength" aria-live="polite"></small>
+            <label>Confirme le mot de passe <input type="password" name="passwordConfirmation" autocomplete="new-password" maxlength="128" required></label>
+          </div>
+          <div id="profile-picker">
+            <h3 id="profile-options-heading">Choisis ton profil</h3>
+            <div id="profile-options" role="group" aria-labelledby="profile-options-heading"></div>
+          </div>
+          <button class="btn profile-confirm" type="submit">Créer mon compte</button>
+          <p id="account-error" role="alert" hidden>Impossible d’enregistrer le mot de passe dans ce navigateur.</p>
+          <button id="back-to-login" class="btn texty" type="button" hidden>Retour à la connexion</button>
+          <small>Ton compte et tes tâches sont enregistrés dans ce navigateur. Ton choix de profil est définitif après inscription.</small>
+        </form>
+      </section>
+
+      <section id="login-panel" class="account-panel" hidden aria-labelledby="login-heading">
+        <span class="setup-label">Compte local</span>
+        <h2 id="login-heading">Connecte-toi</h2>
+        <p>Saisis ton adresse e-mail et ton mot de passe.</p>
+        <form id="login-form">
+          <div class="account-fields">
+            <label>Adresse e-mail <input type="email" name="email" autocomplete="username" required></label>
+            <label>Mot de passe <input type="password" name="password" autocomplete="current-password" maxlength="128" required></label>
+          </div>
+          <p id="login-error" role="alert" hidden>Adresse e-mail ou mot de passe incorrect.</p>
+          <button class="btn profile-confirm" type="submit">Se connecter</button>
+          <button id="new-account" class="btn texty" type="button">Créer un autre compte</button>
+        </form>
+      </section>
+
+      <div id="task-workspace" class="container" hidden>
+      <h2 class="workspace-heading">Mes tâches</h2>
+      <!-- Formulaire d'ajout avec priorité -->
+      <form id="task-form" class="task-form">
+        <input 
+          type="text" 
+          id="task-input" 
+          placeholder="Ajouter une tâche..." 
+          aria-label="Titre de la tâche"
+          autocomplete="off"
+          required
+        >
+        <select id="priority-select" class="priority-select" aria-label="Priorité">
+          <option value="high">🔴 Haute</option>
+          <option value="medium" selected>🟡 Moyenne</option>
+          <option value="low">🟢 Basse</option>
+        </select>
+        <label class="task-deadline">Échéance <input id="task-due-date" type="date"></label>
+        <button id="task-submit" type="submit" class="btn primary">Ajouter</button>
+        <button id="cancel-task-edit" type="button" class="btn texty" hidden>Annuler</button>
+      </form>
+
+      <!-- Filtres par priorité avec compteurs en direct -->
+      <div class="priority-filters" id="priority-filters">
+        <span class="filter-label">Filtrer :</span>
+        <button type="button" class="chip active" data-filter="all">
+          <span>Toutes</span>
+          <span class="count-pill" id="count-all">0</span>
+        </button>
+        <button type="button" class="chip" data-filter="high">
+          <span>🔴 Haute</span>
+          <span class="count-pill" id="count-high">0</span>
+        </button>
+        <button type="button" class="chip" data-filter="medium">
+          <span>🟡 Moyenne</span>
+          <span class="count-pill" id="count-medium">0</span>
+        </button>
+        <button type="button" class="chip" data-filter="low">
+          <span>🟢 Basse</span>
+          <span class="count-pill" id="count-low">0</span>
+        </button>
+      </div>
+
+      <!-- Compteur et statut -->
+      <div class="task-stats">
+        <span id="task-count">0 tâche</span>
+        <button type="button" id="clear-completed-btn" class="btn texty hidden">Supprimer les terminées</button>
+      </div>
+
+      <!-- Liste des tâches -->
+      <ul id="task-list" class="task-list"></ul>
+
+      <!-- État vide -->
+      <div id="empty-state" class="empty-state">
+        <p>Aucune tâche dans ce profil. Ajoute ta première tâche ci-dessus !</p>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script/script.js"></script>
+</body>
+</html>
